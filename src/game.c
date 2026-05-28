@@ -2,46 +2,14 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "epona.h"
+
 #include <assert.h>
 
 inline Vector4 Vector4Transform(Vector4 v, Matrix mat)
 {
     return QuaternionTransform(v, mat);
 }
-
-Vector3 cube[] = {
-    // back face
-    {-1.0f, -1.0f, -1.0f},
-    {-1.0f,  1.0f, -1.0f},
-    { 1.0f,  1.0f, -1.0f},
-    { 1.0f, -1.0f, -1.0f},
-    
-    // front face
-    {-1.0f, -1.0f,  1.0f},
-    {-1.0f,  1.0f,  1.0f},
-    { 1.0f,  1.0f,  1.0f},
-    { 1.0f, -1.0f,  1.0f},
-};
-
-int indices[] = {
-    0,1,2,
-    0,2,3,
-
-    4,5,6,
-    4,6,7,
-
-    0,1,5,
-    0,5,4,
-
-    3,2,6,
-    3,6,7,
-
-    1,2,6,
-    1,6,5,
-
-    0,3,7,
-    0,7,4,
-};
 
 typedef struct _MyCamera
 {
@@ -67,7 +35,7 @@ void UpdateFrame(float time, float frame_time);
 void RenderFrame(float time, float frame_time);
 void SetupCamera(MyCamera* camera);
 Matrix GetTransform(const MyCamera* camera);
-Matrix MatrixViewport();
+Matrix MatrixViewport(int screen_width, int screen_height);
 Vector3 GetCubeTransformedPoint(Vector3 v, Matrix mat);
 float ToRadians(float degrees);
 
@@ -113,9 +81,8 @@ void CleanupGame(void)
 
 void UpdateFrame(float time, float frame_time)
 {
-    const float distance = 5.0f;
+    const float distance = 250.0f;
     g_camera.eye.x = distance * cosf(time * PI / 4.0f);
-    g_camera.eye.y = 2.5f;
     g_camera.eye.z = distance * sinf(time * PI / 4.0f);
     g_camera.is_dirty = true;
 }
@@ -135,9 +102,9 @@ void RenderFrame(float time, float frame_time)
 
     for(int i = 0; i < size; i += 3)
     {
-        const Vector3 p1 = GetCubeTransformedPoint(cube[indices[i]], g_transform);
-        const Vector3 p2 = GetCubeTransformedPoint(cube[indices[(i + 1)]], g_transform);
-        const Vector3 p3 = GetCubeTransformedPoint(cube[indices[(i + 2)]], g_transform);
+        const Vector3 p1 = GetCubeTransformedPoint(vertices[indices[i]], g_transform);
+        const Vector3 p2 = GetCubeTransformedPoint(vertices[indices[(i + 1)]], g_transform);
+        const Vector3 p3 = GetCubeTransformedPoint(vertices[indices[(i + 2)]], g_transform);
         
         Vector2 p4 = { p1.x, p1.y };
         Vector2 p5 = { p2.x, p2.y };
@@ -158,13 +125,13 @@ void RenderFrame(float time, float frame_time)
 
 void SetupCamera(MyCamera* camera)
 {
-    camera->eye = (Vector3){ 0.0f, 2.5f, 5.0f };
-    camera->target = (Vector3){ 0.0f, 0.0f, 0.0f };
+    camera->eye = (Vector3){ 0.0f, 200.0f, 250.0f };
+    camera->target = (Vector3){ 0.0f, 100.0f, 0.0f };
     camera->up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera->fov_y = 60.0;
+    camera->fov_y = 90.0;
     camera->aspect = (double)g_screen_width / (double)g_screen_height;
     camera->near_plane = 0.1;
-    camera->far_plane = 100.0;
+    camera->far_plane = 500.0;
 }
 
 Matrix GetTransform(const MyCamera* camera)

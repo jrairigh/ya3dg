@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 include_directories(${CMAKE_SOURCE_DIR}/lib/raylib/src)
 
 # Add your source files here
-add_executable(ya3dg src/main.c)
+add_executable(ya3dg src/main.c src/game.c)
 target_link_libraries(ya3dg raylib)
 
 # Link against raylib
